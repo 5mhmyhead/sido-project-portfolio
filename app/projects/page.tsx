@@ -1,10 +1,12 @@
-import { getProjects } from "@/lib/projects";
-import { ProjectSearch } from "./project-search";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { Suspense } from "react";
+import { ProjectRows } from "./project-rows";
+import { ProjectStats } from "./project-stats";
+import { RowsSkeleton, StatsSkeleton } from "./skeletons";
 
-export default async function Projects() {
-  const projects = await getProjects();
+export const dynamic = "force-dynamic";
 
+export default function Projects() {
   return (
     <main className="px-16 py-8">
       <Breadcrumbs 
@@ -14,7 +16,12 @@ export default async function Projects() {
         ]} 
       />
       <h1 className="font-serif text-6xl font-bold">Projects</h1>
-      <ProjectSearch projects={projects} />
+      <Suspense fallback={<StatsSkeleton />}>
+        <ProjectStats />
+      </Suspense>
+      <Suspense fallback={<RowsSkeleton />}>
+        <ProjectRows />
+      </Suspense>
     </main>
   );
 }

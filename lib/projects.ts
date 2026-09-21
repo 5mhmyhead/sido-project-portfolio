@@ -1,5 +1,6 @@
 import "server-only";
 
+export type Stats = { total: number; newest: number; oldest: number };
 export type Project = { slug: string; title: string; year: number; summary: string };
 
 const PROJECTS: Project[] = [
@@ -17,5 +18,17 @@ const PROJECTS: Project[] = [
   },
 ];
 
-export const getProjects = async () => PROJECTS;
-export const getProject = async (slug: string) => PROJECTS.find((p) => p.slug === slug);
+export async function readProjects() {
+  await new Promise((go) => setTimeout(go, 2000));
+  return PROJECTS;
+}
+
+export async function readProject(slug: string) {
+  return PROJECTS.find((p) => p.slug === slug) ?? null;
+}
+
+export async function readStats(): Promise<Stats> {
+  await new Promise((go) => setTimeout(go, 2000));
+  const years = PROJECTS.map((p) => p.year);
+  return { total: PROJECTS.length, newest: Math.max(...years), oldest: Math.min(...years) };
+}

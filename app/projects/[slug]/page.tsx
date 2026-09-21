@@ -1,13 +1,21 @@
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { getProject } from "@/lib/projects";
+import { fetchProject } from "@/lib/api";
 import { notFound } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export default async function Project({params}: Props) {
   const { slug } = await params;
-  const project = await getProject(slug);
-  if(!project) notFound();
+  
+  let project;
+  try {
+    project = await fetchProject(slug);
+  } catch (e) {
+    if (e instanceof Error && e.message === "404") notFound();
+    throw e;
+  }
   
   return (
     <main className="px-16 py-8">
