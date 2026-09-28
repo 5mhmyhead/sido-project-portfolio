@@ -17,7 +17,8 @@ export function RowsSkeleton() {
   return (
     <div className="mt-8 space-y-4" aria-hidden="true">
       <div className={`h-10 w-80 ${BAR}`} />
-      {[0, 1, 2].map((i) => <div key={i} className={`h-6 w-56 ${BAR}`} />)}
+      <div className="h-1"/>
+      {[0, 1, 2, 3].map((i) => <div key={i} className={`h-7 w-50 ${BAR}`} />)}
     </div>
   );
 }
