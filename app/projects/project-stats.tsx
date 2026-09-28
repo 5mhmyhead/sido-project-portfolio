@@ -1,7 +1,15 @@
 import { fetchStats } from "@/lib/api";
+import { problemFor } from "@/lib/problem";
+import { Problem } from "./problem";
 
 export async function ProjectStats() {
-  const stats = await fetchStats();
+  let stats;
+  try {
+    stats = await fetchStats();
+  } catch (e) {
+    return <Problem message={problemFor(e)} />;
+  }
+  
   const items = [
     { label: "Projects", value: stats.total },
     { label: "Newest", value: stats.newest },

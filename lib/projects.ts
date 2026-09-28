@@ -1,34 +1,39 @@
 import "server-only";
+import { desc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { projects } from "@/db/schema";
 
+export type Project = {
+  slug: string;
+  title: string;
+  year: number;
+  summary: string;
+  imageUrl: string | null;
+};
 export type Stats = { total: number; newest: number; oldest: number };
-export type Project = { slug: string; title: string; year: number; summary: string };
 
-const PROJECTS: Project[] = [
-  { slug: "kawaii-count", title: "Kawaii Count", year: 2025,
-    summary: "Kawaii Count is a cheerful, Hello Kitty inspired restaurant inventory and sales management system designed specifically for cafes and coffee shops."
-  },
-  { slug: "jose-rizal-website", title: "Jose Rizal Website", year: 2026,
-    summary: "The Jose Rizal Website was created for our Rizal Life project, based on the official Jose Rizal website and is a self-sustaining, non-profit, and non-partisan project."
-  },
-  { slug: "love-from-below", title: "Love From Below", year: 2025,
-    summary: "Love From Below is a little 2D Game made in Java to learn more about the Swing functionality and game development in general."
-  },
-  { slug: "five-night", title: "Five Nights at iACADEMY", year: 2026,
-    summary: "Five Nights at iACADEMY is a 2D Game horror made in Java for my finals project in Java Enterprise Programming."
-  },
-];
+const columns = {
+  slug: projects.slug,
+  title: projects.title,
+  year: projects.year,
+  summary: projects.summary,
+  imageUrl: projects.imageUrl,
+};
 
-export async function readProjects() {
-  await new Promise((go) => setTimeout(go, 2000));
-  return PROJECTS;
+export async function readProjects(): Promise<Project[]> {
+  return db.select(columns).from(projects).orderBy(desc(projects.createdAt));
 }
 
-export async function readProject(slug: string) {
-  return PROJECTS.find((p) => p.slug === slug) ?? null;
+export async function readProject(slug: string): Promise<Project | null> {
+  const [row] = await db.select(columns).from(projects).where(eq(projects.slug, slug));
+  return row ?? null;
 }
 
 export async function readStats(): Promise<Stats> {
-  await new Promise((go) => setTimeout(go, 2000));
-  const years = PROJECTS.map((p) => p.year);
-  return { total: PROJECTS.length, newest: Math.max(...years), oldest: Math.min(...years) };
+  const years = (await db.select({ year: projects.year }).from(projects)).map((p) => p.year);
+  return {
+    total: years.length,
+    newest: years.length ? Math.max(...years) : 0,
+    oldest: years.length ? Math.min(...years) : 0,
+  };
 }
